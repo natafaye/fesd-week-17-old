@@ -1,56 +1,50 @@
-import { Route, Routes } from "react-router-dom";
-import AllLogsPage from './pages/AllLogsPage'
-import CaloriePage from './pages/CaloriePage'
-import WaterPage from './pages/WaterPage'
-import StepsPage from './pages/StepsPage'
-import LogFormPage from './pages/LogFormPage'
-import Header from "./Header";
 import { useEffect, useState } from "react";
-import { TEST_LOGS } from "./FAKE_DATA";
-import LoginForm from "./pages/LoginForm";
-import { fetchAllLogs } from "./LogService";
+import { Route, Routes } from "react-router-dom";
+import AllProductsPage from "./components/AllProductsPage";
+import ProductDetailsPage from "./components/ProductDetailsPage";
 
-const API = "http://ourownpage.com/api"
+const API = "http://localhost:3001"
 
 function App() {
-  const [logList, setLogList] = useState([])
+  const [productList, setProductList] = useState([])
 
-  const addLog = async (newLogData) => {
-
-    // tell our backend
-    const response = await fetch(API + "/logs", {
-      method: "POST",
-      headers: {}, // TODO: add headers
-      body: JSON.stringify(newLogData)
-    })
-    const newLog = await response.json();
-
-    //const newLog = { ...newLogData, id: logList[logList.length - 1].id + 1 } // id hack
-    setLogList(logList.concat(newLog))
+  const deleteProduct = (idToDelete) => {
+    // also tell the backend
+    fetch(API + "/products/" + idToDelete, { method: "DELETE" })
+    
+    setProductList(currList => currList.filter(p => p.id !== idToDelete))
   }
 
   useEffect(() => {
-    const fetchLogsFromBackend = async () => {
-      const allLogs = await fetchAllLogs();
-      setLogList(allLogs);
+    console.log('productListUpdated:', productList)
+  }, [productList])
+
+  useEffect(() => {
+    const refreshProducts = async () => {
+      console.log("refreshing")
+      const response = await fetch(API + "/products");
+      const allProducts = await response.json();
+      setProductList(allProducts);
     }
-    fetchLogsFromBackend();
-  }, []) // give it an empty array to only run once on load (or twice in React 18 strict mode in development)
+    refreshProducts();
+  }, []) // empty dependency array says to run this once when the page first loads (or in dev mode, it runs twice)
 
   return (
-    <>
-      <Header />
-      <LoginForm color="red"/>
-      <div className="container">
-        <Routes>
-          <Route path="/" element={<AllLogsPage logList={logList}/>} />
-          <Route path="/steps" element={<StepsPage logList={logList} />} />
-          <Route path="/water" element={<WaterPage logList={logList} />} />
-          <Route path="/calories" element={<CaloriePage logList={logList} />} />
-          <Route path="/logs/new" element={<LogFormPage onSubmit={addLog} />} />
-        </Routes>
+    <div className="container">
+      <div className="row">
+        <div className="col">
+          <h1 className="display-5 mt-2">My Etsy Store</h1>
+        </div>
+        <div className="col text-end">
+          <button className="btn btn-primary mt-3">New Product</button>
+        </div>
       </div>
-    </>
+      <hr/>
+      <Routes>
+        <Route path="/" element={<AllProductsPage products={productList} onDelete={deleteProduct}/>}/>
+        <Route path="/products/:productId" element={<ProductDetailsPage products={productList}/>}/>
+      </Routes>
+    </div>
   );
 }
 
