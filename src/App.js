@@ -1,51 +1,60 @@
-import { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
-import AllProductsPage from "./components/AllProductsPage";
-import ProductDetailsPage from "./components/ProductDetailsPage";
+import React, { useState } from 'react'
+import { TEST_PAGES, TEST_SECTIONS } from './TEST_DATA'
+import { v4 as uuid } from 'uuid'
+import { Route, Routes } from 'react-router-dom'
+import TopBar from './components/TopBar'
+import HomePage from './components/HomePage'
+import EditPage from './components/EditPage'
+import ViewPage from './components/ViewPage'
 
-const API = "http://localhost:3001"
+export default function App() {
+  const [pageList, setPageList] = useState(TEST_PAGES)
+  const [sectionList, setSectionList] = useState(TEST_SECTIONS)
 
-function App() {
-  const [productList, setProductList] = useState([])
-
-  const deleteProduct = (idToDelete) => {
-    // also tell the backend
-    fetch(API + "/products/" + idToDelete, { method: "DELETE" })
-    
-    setProductList(currList => currList.filter(p => p.id !== idToDelete))
+  const createPage = () => {
+    const newPage = {
+      id: uuid(), // generates a big old string id that's unique
+      title: "Untitled"
+    }
+    setPageList([...pageList, newPage])
   }
 
-  useEffect(() => {
-    console.log('productListUpdated:', productList)
-  }, [productList])
+  const deletePage = (idToDelete) => {
+    setPageList(pageList.filter(page => page.id !== idToDelete))
+  }
 
-  useEffect(() => {
-    const refreshProducts = async () => {
-      console.log("refreshing")
-      const response = await fetch(API + "/products");
-      const allProducts = await response.json();
-      setProductList(allProducts);
+  const updatePage = (newPageData) => {
+
+  }
+
+  const createSection = (pageId) => {
+    const newSection = {
+      id: uuid(), // generates a big old string id that's unique
+      type: "text",
+      pageId: pageId,
+      content: ""
     }
-    refreshProducts();
-  }, []) // empty dependency array says to run this once when the page first loads (or in dev mode, it runs twice)
+    setSectionList([...sectionList, newSection])
+  }
+
+  const deleteSection = (idToDelete) => {
+    setSectionList(sectionList.filter(s => s.id !== idToDelete))
+  }
+
+  const updateSection = (newSectionData) => { // newSectionData = { content: event.target.value }
+
+  }
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col">
-          <h1 className="display-5 mt-2">My Etsy Store</h1>
-        </div>
-        <div className="col text-end">
-          <button className="btn btn-primary mt-3">New Product</button>
-        </div>
+    <div>
+      <TopBar />
+      <div className="container">
+        <Routes>
+          <Route path="/" element={<HomePage pageList={pageList} onCreate={createPage} onDelete={deletePage}/>} />
+          <Route path="/pages/:pageId/edit" element={<EditPage pageList={pageList} sectionList={sectionList} onUpdatePage={updatePage} onCreateSection={createSection} onUpdateSection={updateSection} />} />
+          <Route path="/pages/:pageId" element={<ViewPage pageList={pageList} sectionList={sectionList}/>} />
+        </Routes>
       </div>
-      <hr/>
-      <Routes>
-        <Route path="/" element={<AllProductsPage products={productList} onDelete={deleteProduct}/>}/>
-        <Route path="/products/:productId" element={<ProductDetailsPage products={productList}/>}/>
-      </Routes>
     </div>
-  );
+  )
 }
-
-export default App;
