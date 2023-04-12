@@ -1,60 +1,29 @@
-import React, { useState } from 'react'
-import { TEST_PAGES, TEST_SECTIONS } from './TEST_DATA'
-import { v4 as uuid } from 'uuid'
-import { Route, Routes } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
 import TopBar from './components/TopBar'
+import { Container } from 'react-bootstrap'
+import { Route, Routes } from 'react-router-dom'
 import HomePage from './components/HomePage'
-import EditPage from './components/EditPage'
-import ViewPage from './components/ViewPage'
+import SearchResultsPage from './components/SearchResultsPage'
+import BookDetailsPage from './components/BookDetailsPage'
+import { TEST_BOOKS } from './FAKE_DATA'
 
 export default function App() {
-  const [pageList, setPageList] = useState(TEST_PAGES)
-  const [sectionList, setSectionList] = useState(TEST_SECTIONS)
+  const [bookList, setBookList] = useState([])
 
-  const createPage = () => {
-    const newPage = {
-      id: uuid(), // generates a big old string id that's unique
-      title: "Untitled"
-    }
-    setPageList([...pageList, newPage])
-  }
-
-  const deletePage = (idToDelete) => {
-    setPageList(pageList.filter(page => page.id !== idToDelete))
-  }
-
-  const updatePage = (newPageData) => {
-
-  }
-
-  const createSection = (pageId) => {
-    const newSection = {
-      id: uuid(), // generates a big old string id that's unique
-      type: "text",
-      pageId: pageId,
-      content: ""
-    }
-    setSectionList([...sectionList, newSection])
-  }
-
-  const deleteSection = (idToDelete) => {
-    setSectionList(sectionList.filter(s => s.id !== idToDelete))
-  }
-
-  const updateSection = (newSectionData) => { // newSectionData = { content: event.target.value }
-
-  }
+  useEffect(() => {
+    setBookList(TEST_BOOKS)
+  }, []) // [] = once (twice in dev), nothing = every time, [something] = when that something changes
 
   return (
-    <div>
-      <TopBar />
-      <div className="container">
+    <>
+      <TopBar/>
+      <Container>
         <Routes>
-          <Route path="/" element={<HomePage pageList={pageList} onCreate={createPage} onDelete={deletePage}/>} />
-          <Route path="/pages/:pageId/edit" element={<EditPage pageList={pageList} sectionList={sectionList} onUpdatePage={updatePage} onCreateSection={createSection} onUpdateSection={updateSection} />} />
-          <Route path="/pages/:pageId" element={<ViewPage pageList={pageList} sectionList={sectionList}/>} />
+          <Route path="/" element={ <HomePage bookList={bookList}/> }/>
+          <Route path="/search/:searchQuery" element={ <SearchResultsPage bookList={bookList}/> }/>
+          <Route path="/book/:bookId" element={ <BookDetailsPage bookList={bookList}/> }/>
         </Routes>
-      </div>
-    </div>
+      </Container>
+    </>
   )
 }
