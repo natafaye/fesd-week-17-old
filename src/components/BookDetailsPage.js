@@ -12,8 +12,10 @@ export default function BookDetailsPage({ bookList }) {
     const book = bookList.find(b => b.id === bookId)
 
     useEffect(() => {
-        document.title = book.title
+        document.title = book ? book.title : "Loading..."
     }, [book])
+
+    if(!book) return "Loading..."
 
     return (
         <Row>
