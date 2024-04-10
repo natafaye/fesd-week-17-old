@@ -1,125 +1,72 @@
 import { Route, Routes } from "react-router-dom";
-import DepartmentPage from "./pages/DepartmentPage";
-import Header from "./components/Header";
-import ShoppingCartPage from "./pages/ShoppingCartPage";
-import ProductDetailsPage from "./pages/ProductDetailsPage";
-import HomePage from "./pages/HomePage";
-import NotFound from "./pages/NotFound";
+import HomePage from "./HomePage";
+import StatsPage from "./StatsPage";
+import BookDetailsPage from "./BookDetailsPage";
+import TopNavbar from "./TopNavbar";
 import { Container } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import EditProductPage from "./pages/EditProductPage";
-import AddProductPage from "./pages/AddProductPage";
+import LoginPage from "./LoginPage";
+import SearchBooks from "./SearchBooks";
+
+const MOCK_API_URL = "https://660cb1aa3a0766e85dbe784c.mockapi.io/api/reading/Book"
+const JSON_SERVER_URL = "http://localhost:3005/books"
 
 export default function App() {
-  const [productList, setProductList] = useState([])
-  const [loadingProducts, setLoadingProducts] = useState(true)
-  const [errorMessageProducts, setErrorMessageProducts] = useState(null)
-  
-  const [departmentList, setDepartmentList] = useState([])
-  const [loadingDepartments, setLoadingDepartments] = useState(true)
-  const [errorMessageDepartments, setErrorMessageDepartments] = useState(null)
+  const [readingBooks, setReadingBooks] = useState([])
 
   useEffect(() => {
-
-    async function fetchProduct() {
-      setLoadingProducts(true)
-      const response = await fetch("http://localhost:3005/products")
-      if(!response.ok) {
-        setProductList(null)
-        setErrorMessageProducts(response.statusText)
-        setLoadingProducts(false)
-        return
-      }
-      const data = await response.json()
-      setProductList(data)
-      setErrorMessageProducts(null)
-      setLoadingProducts(false)
+    const fetchReadingBooks = async () => {
+      const response = await fetch(JSON_SERVER_URL)
+      const fetchedBooks = await response.json() // unsmoosh (or unJSON) the data
+      setReadingBooks(fetchedBooks)
     }
-    
-    async function fetchDepartments() {
-      setLoadingDepartments(true)
-      const response = await fetch("http://localhost:3005/departments")
-      if(!response.ok) {
-        setDepartmentList(null)
-        setErrorMessageDepartments(response.statusText)
-        setLoadingDepartments(false)
-        return
-      }
-      const data = await response.json()
-      setDepartmentList(data)
-      setErrorMessageDepartments(null)
-      setLoadingDepartments(false)
-    }
+    fetchReadingBooks()
+  }, []) // empty dependency array -> run once (or twice in development mode)
 
-    fetchProduct()
-    fetchDepartments()
-  }, [])
+  const updateBook = (updatedData, idToUpdate) => {
+    // Update the database
+    // When we're doing an update, we need to put the id on the end of the URL so it knows which one to update
+    fetch(JSON_SERVER_URL + "/" + idToUpdate, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      // In the body we send a smooshified version of our updated data
+      body: JSON.stringify(updatedData)
+    })
 
-  const addProduct = (newProductData) => {
-    setLoadingProducts(true)
-    // add on the backend
-
-    setLoadingProducts(false)
-    // add on the frontend
+    // Update the state
+    // When you're updating an object inside of an array, you have to make a copy of the array and of the object
+    const indexToUpdate = readingBooks.findIndex(b => b.id === idToUpdate)
+    const copyOfReadingBooks = [...readingBooks]
+    // Set the index to a copy of the object, with the properties on updatedData overwriting the properties on the copy
+    copyOfReadingBooks[indexToUpdate] = { ...copyOfReadingBooks[indexToUpdate], ...updatedData}
+    // Set the state to the updated array with the updated object inside
+    setReadingBooks(copyOfReadingBooks)
   }
 
-  const updateProduct = async (updatedProductData) => {
-    setLoadingProducts(true)
-    // update on the backend
-    const response = await fetch("http://localhost:3005/products/" + updatedProductData.id, {
-      method: "PUT", 
+  const addBook = async (newBookData) => {
+    // add it to the database
+    const response = await fetch(JSON_SERVER_URL, {
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedProductData)
+      body: JSON.stringify(newBookData)
     })
-    if(!response.ok) {
-      // It went bad
-      setErrorMessageProducts(response.statusText)
-      setLoadingDepartments(false)
-      return  // emergency exit from a function
-    }
-
-    // It went good
-    setLoadingProducts(false)
-    setErrorMessageProducts(null)
-    // update on the frontend
-    setProductList(productList.map(product => 
-      (product.id === updatedProductData.id) ?
-        { ...product, ...updatedProductData } :
-        product
-    ))    
+    const createdReadingBookWithId = await response.json()
+    // add it to the state
+    setReadingBooks( [...readingBooks, createdReadingBookWithId] )
   }
 
   return (
     <div>
-      <Header/>
-      <Container className="mt-4">
-        { errorMessageProducts ? <div className="text-danger">Error with Products: {errorMessageProducts}</div> : null }
-        { loadingProducts ? <div className="text-body-tertiary">Loading Products...</div> : null }
-        { errorMessageDepartments ? <div className="text-danger">Error with Departments: {errorMessageProducts}</div> : null }
-        { loadingDepartments ? <div className="text-body-tertiary">Loading Departments...</div> : null }
+      <TopNavbar />
+      <Container className="mt-3">
         <Routes>
-          <Route path="/" element={<HomePage productList={productList}/>}/>{/* This matches nothing */}
-          <Route path="/department" element={<DepartmentPage/>}/>
-          <Route path="/shopping-cart" element={<ShoppingCartPage/>}/>
-          <Route path="/products/details/:productId" element={
-            <ProductDetailsPage 
-              productList={productList} 
-              loadingProducts={loadingProducts}
-              departmentList={departmentList}
-              loadingDepartments={loadingDepartments}
-            />
-          }/>
-          <Route path="/products/details/:productId/edit" element={
-            <EditProductPage 
-              updateProduct={updateProduct} 
-              productList={productList} 
-              departmentList={departmentList} 
-              loadingDepartments={loadingDepartments}
-              loadingProducts={loadingProducts}
-            />
-            }/>
-          <Route path="/products/new" element={<AddProductPage addProduct={addProduct} departmentList={departmentList} loadingDepartments={loadingDepartments} />}/>
-          <Route path="*" element={<NotFound/>}/>{/* This matches everything else */}
+          <Route path="/" element={
+            <HomePage readingBooks={readingBooks} updateBook={updateBook} addBook={addBook} />
+          } />
+          <Route path="/login" element={<LoginPage/>}/>
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/books/:id" element={<BookDetailsPage />} />
+          <Route path="/search" element={<SearchBooks addBook={addBook}/>}/>
         </Routes>
       </Container>
     </div>

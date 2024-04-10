@@ -1,120 +1,30 @@
 {
-  "products": [
+  "books": [
     {
-      "id": 1,
-      "name": "Stone",
-      "department_id": 0,
-      "price": 13
+      "progress": "52",
+      "id": 0
     },
     {
-      "name": "Brassssss",
-      "price": 200,
-      "department_id": 1,
+      "id": 1,
+      "volume_id": "GdgMRNFIHZgC",
+      "progress": 22
+    },
+    {
+      "progress": 58,
       "id": 2
     },
     {
-      "id": 3,
-      "name": "Aluminum",
-      "department_id": 1,
-      "price": 86
+      "progress": "100",
+      "id": 3
     },
     {
-      "id": 4,
-      "name": "Rubber",
-      "department_id": 0,
-      "price": 45
+      "volume_id": "Sfcj2l051FoC",
+      "progress": 0,
+      "id": 4
     },
     {
-      "id": 5,
-      "name": "Steel",
-      "department_id": 1,
-      "price": 85
-    },
-    {
-      "id": 6,
-      "name": "Plastic",
-      "department_id": 0,
-      "price": 17
-    }
-  ],
-  "users": [
-    {
-      "id": 1,
-      "name": "Eirena"
-    },
-    {
-      "id": 2,
-      "name": "Dionysus"
-    },
-    {
-      "id": 3,
-      "name": "Hanny"
-    },
-    {
-      "id": 4,
-      "name": "Prue"
-    }
-  ],
-  "orders": [
-    {
-      "id": 1,
-      "productId": 1,
-      "userId": 3
-    },
-    {
-      "id": 2,
-      "productId": 3,
-      "userId": 2
-    },
-    {
-      "id": 3,
-      "productId": 2,
-      "userId": 1
-    },
-    {
-      "id": 4,
-      "productId": 4,
-      "userId": 2
-    },
-    {
-      "id": 5,
-      "productId": 5,
-      "userId": 1
-    },
-    {
-      "id": 6,
-      "productId": 3,
-      "userId": 3
-    },
-    {
-      "id": 7,
-      "productId": 1,
-      "userId": 1
-    },
-    {
-      "id": 8,
-      "productId": 4,
-      "userId": 1
-    },
-    {
-      "id": 9,
-      "productId": 1,
-      "userId": 2
-    },
-    {
-      "id": 10,
-      "productId": 2,
-      "userId": 2
-    }
-  ],
-  "departments": [
-    {
-      "id": 0,
-      "name": "Food"
-    },
-    {
-      "id": 1,
-      "name": "Clothes"
+      "progress": "70",
+      "id": 5
     }
   ]
 }
